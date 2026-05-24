@@ -157,16 +157,6 @@
             background: #00ccaa;
             box-shadow: 0 0 15px #00ffcc;
         }
-        .key-warning {
-            background: #ff444422;
-            border: 1px solid #ff4444;
-            border-radius: 8px;
-            padding: 8px 12px;
-            margin-bottom: 15px;
-            font-size: 11px;
-            color: #ff8888;
-            text-align: center;
-        }
         ::-webkit-scrollbar {
             width: 6px;
         }
@@ -208,7 +198,7 @@
 
     <script>
         // =============================================
-        // ВСТАВЬ СВОЙ API КЛЮЧ ОТ DeepSeek ЗДЕСЬ:
+        // ТВОЙ API КЛЮЧ УЖЕ ВСТАВЛЕН:
         const DEEPSEEK_API_KEY = 'sk-ca30edf1c35e410ca6812513332a6285';
         // =============================================
         
@@ -258,7 +248,8 @@
                 });
                 
                 if (!response.ok) {
-                    throw new Error(`Ошибка ${response.status}: ${response.statusText}`);
+                    const errorText = await response.text();
+                    throw new Error(`Ошибка ${response.status}: ${response.statusText}. ${errorText}`);
                 }
                 
                 const data = await response.json();
@@ -277,11 +268,17 @@
                 messagesDiv.scrollTop = messagesDiv.scrollHeight;
                 
             } catch (error) {
-                document.getElementById('typing').innerHTML = `
-                    <div class="message bot-message">
-                        <div class="message-content">❌ Ошибка: ${error.message}<br><br>Проверь API ключ в коде. Ключ должен начинаться с "sk-"</div>
-                    </div>
-                `;
+                const typingElem = document.getElementById('typing');
+                if (typingElem) {
+                    typingElem.innerHTML = `
+                        <div class="message bot-message">
+                            <div class="message-content" style="border-color:#ff4444; color:#ff8888">
+                                ❌ Ошибка: ${error.message}<br><br>
+                                Проверь API ключ. Если ошибка 401 — ключ недействителен.
+                            </div>
+                        </div>
+                    `;
+                }
             }
         }
         
@@ -294,19 +291,6 @@
         document.getElementById('userInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') sendMessage();
         });
-        
-        // Проверка ключа при загрузке
-        if (!DEEPSEEK_API_KEY || DEEPSEEK_API_KEY === 'sk-ca30edf1c35e410ca6812513332a6285') {
-            const messagesDiv = document.getElementById('messages');
-            messagesDiv.innerHTML += `
-                <div class="message bot-message">
-                    <div class="message-content" style="border-color:#ff4444; color:#ff8888">
-                        ⚠️ ВСТАВЬ API КЛЮЧ DeepSeek в код!<br>
-                        Найди строку: const DEEPSEEK_API_KEY = 'sk-...' и замени на свой ключ.
-                    </div>
-                </div>
-            `;
-        }
     </script>
 </body>
 </html>
